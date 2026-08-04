@@ -12,9 +12,12 @@ const GitHubStore = (() => {
     const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`;
     const opts = {
       method,
+      cache: 'no-store',
       headers: {
         Authorization: `Bearer ${TOKEN}`,
-        Accept: 'application/vnd.github+json'
+        Accept: 'application/vnd.github+json',
+        'Cache-Control': 'no-cache',
+        Pragma: 'no-cache'
       }
     };
     if (body) {
@@ -32,11 +35,20 @@ const GitHubStore = (() => {
 
   async function readFile(path) {
     try {
-      const data = await api('GET', path + '?ref=' + BRANCH);
+      const data = await api('GET', path + '?ref=' + BRANCH + '&_=' + Date.now());
       return atob(data.content);
     } catch (e) {
       if (e.message.includes('404') || e.message.includes('Not Found')) return null;
       throw e;
+    }
+  }
+
+  async function getSha(path) {
+    try {
+      const data = await api('GET', path + '?ref=' + BRANCH + '&_=' + Date.now());
+      return data.sha;
+    } catch {
+      return null;
     }
   }
 
@@ -46,13 +58,19 @@ const GitHubStore = (() => {
       content: btoa(content),
       branch: BRANCH
     };
-    for (let attempt = 0; attempt < 3; attempt++) {
+    for (let attempt = 0; attempt < 4; attempt++) {
       const sha = await getSha(path);
       if (sha) body.sha = sha; else delete body.sha;
       try {
         return await api('PUT', path, body);
       } catch (e) {
-        if (attempt < 2 && (e.message.includes('match') || e.message.includes('409') || e.message.includes('422'))) {
+        const retryable = e.message && (
+          e.message.includes('match') ||
+          e.message.includes('409') ||
+          e.message.includes('422')
+        );
+        if (attempt < 3 && retryable) {
+          await new Promise(r => setTimeout(r, 300 * (attempt + 1)));
           continue;
         }
         throw e;
@@ -70,18 +88,9 @@ const GitHubStore = (() => {
     });
   }
 
-  async function getSha(path) {
-    try {
-      const data = await api('GET', path + '?ref=' + BRANCH);
-      return data.sha;
-    } catch {
-      return null;
-    }
-  }
-
   async function listDir(path) {
     try {
-      return await api('GET', path + '?ref=' + BRANCH);
+      return await api('GET', path + '?ref=' + BRANCH + '&_=' + Date.now());
     } catch {
       return [];
     }
