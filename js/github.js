@@ -15,9 +15,7 @@ const GitHubStore = (() => {
       cache: 'no-store',
       headers: {
         Authorization: `Bearer ${TOKEN}`,
-        Accept: 'application/vnd.github+json',
-        'Cache-Control': 'no-cache',
-        Pragma: 'no-cache'
+        Accept: 'application/vnd.github+json'
       }
     };
     if (body) {
