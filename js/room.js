@@ -77,8 +77,7 @@
     overlayError.classList.add('hidden');
 
     try {
-      const metaRaw = sessionStorage.getItem('vault-meta-raw');
-      const raw = metaRaw || await GitHubStore.readFile(`data/rooms/${roomId}/meta.enc`);
+      const raw = await GitHubStore.readFile(`data/rooms/${roomId}/meta.enc`);
       if (!raw) {
         overlayError.textContent = 'Room not found';
         overlayError.classList.remove('hidden');
@@ -260,6 +259,7 @@
     uploadProgressBar.classList.remove('hidden');
     uploadProgressFill.style.width = '0%';
 
+    let failed = 0;
     const fileArr = Array.from(files);
     for (let i = 0; i < fileArr.length; i++) {
       const file = fileArr[i];
@@ -279,11 +279,19 @@
           type: file.type,
           uploaded: Date.now()
         });
-        await saveMeta();
       } catch (e) {
+        failed++;
         showDashError('Upload failed: ' + e.message);
       }
       uploadProgressFill.style.width = ((i + 1) / fileArr.length * 100) + '%';
+    }
+
+    if (failed < fileArr.length) {
+      try {
+        await saveMeta();
+      } catch (e) {
+        showDashError('Failed to save: ' + e.message);
+      }
     }
 
     uploadProgressBar.classList.add('hidden');

@@ -41,14 +41,23 @@ const GitHubStore = (() => {
   }
 
   async function writeFile(path, content, message) {
-    const sha = await getSha(path);
     const body = {
       message: message || `Update ${path}`,
       content: btoa(content),
       branch: BRANCH
     };
-    if (sha) body.sha = sha;
-    return api('PUT', path, body);
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const sha = await getSha(path);
+      if (sha) body.sha = sha; else delete body.sha;
+      try {
+        return await api('PUT', path, body);
+      } catch (e) {
+        if (attempt < 2 && (e.message.includes('match') || e.message.includes('409') || e.message.includes('422'))) {
+          continue;
+        }
+        throw e;
+      }
+    }
   }
 
   async function deleteFile(path, message) {
