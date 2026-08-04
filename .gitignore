@@ -1,0 +1,4 @@
+# Keep data directory for storage
+!data/
+!data/rooms/
+!data/rooms/.gitkeep

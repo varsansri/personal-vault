@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Room - Personal Vault</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="password-overlay" class="container">
+    <div class="card">
+      <h1>🔐 Unlock Room</h1>
+      <p class="subtitle" id="overlay-room-id">Room: ...</p>
+      <div class="form-group">
+        <label for="room-password">Password</label>
+        <input type="password" id="room-password" placeholder="Enter room password" autocomplete="current-password">
+      </div>
+      <button class="btn primary" id="btn-unlock">Unlock</button>
+      <div id="overlay-error" class="error hidden"></div>
+    </div>
+  </div>
+
+  <div id="dashboard" class="container hidden">
+    <div class="card">
+      <div class="header">
+        <h2>🏠 <span id="dash-room-id">...</span></h2>
+        <span class="room-id-badge" id="room-url-badge">Share Link</span>
+        <button class="btn small danger" id="btn-lock">Lock</button>
+      </div>
+
+      <div class="section">
+        <div class="section-title">📎 Files</div>
+        <div class="upload-area" id="upload-area">
+          <p>Click or drop files here</p>
+          <input type="file" id="file-input" multiple>
+        </div>
+        <ul class="file-list" id="file-list"></ul>
+        <div id="files-empty" class="empty-state">No files uploaded yet</div>
+        <div class="progress-bar hidden" id="upload-progress-bar"><div class="progress-fill" id="upload-progress-fill"></div></div>
+        <div class="storage-info"><span id="storage-used">0 MB</span> / 30 MB used</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">📝 Notes</div>
+        <div class="note-area">
+          <textarea id="note-text" placeholder="Write notes here..."></textarea>
+        </div>
+        <button class="btn small primary" id="btn-save-note">Save Note</button>
+      </div>
+
+      <div class="section">
+        <div class="section-title">🔗 Quick Links</div>
+        <div class="link-row">
+          <input type="text" id="link-url" placeholder="https://...">
+          <input type="text" id="link-label" placeholder="Label (optional)" style="max-width:160px">
+          <button class="btn small primary" id="btn-add-link">Add</button>
+        </div>
+        <ul class="link-list" id="link-list"></ul>
+        <div id="links-empty" class="empty-state">No links added yet</div>
+      </div>
+
+      <div id="dash-error" class="error hidden"></div>
+    </div>
+  </div>
+
+  <script src="js/crypto.js"></script>
+  <script src="js/github.js"></script>
+  <script src="js/room.js"></script>
+</body>
+</html>
